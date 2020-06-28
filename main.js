@@ -49,6 +49,9 @@ window.onload = function () {
     document.addEventListener('keydown', keyDownHandler);
     document.addEventListener('keyup', keyUpHandler);
 
+    document.addEventListener('mousedown', mouseDownHandler)
+    document.addEventListener('mouseup', mouseUpHandler)
+
     setInterval(frame, 1 / 60.0);     // setup main loop
     titleScreen(); // init game state
 
@@ -866,7 +869,7 @@ function treeSet(y) {
 var command = [];
 var fireDelay = 0;
 var controlMapping = { 37: 'left', 39: 'right', 38: 'up', 40: 'down', 32: 'fire' };
-var controlMappingWASD = { 65: 'left', 70: 'right', 87: 'up', 83: 'down'}  
+var controlMappingWASD = { 65: 'left', 68: 'right', 87: 'up', 83: 'down'}  
 
 var lastKeyDown;
 function keyDownHandler(event) {
@@ -900,7 +903,6 @@ function keyDownHandler(event) {
     lastKeyDown = code;
     if (code == 27) titleScreen();
 
-
 }
 function keyUpHandler(event) {
     var code = event.which || event.keyCode;
@@ -911,6 +913,18 @@ function keyUpHandler(event) {
 
     lastKeyDown = null;
 }
+
+function mouseUpHandler(event){
+    command['fire'] = false;
+}
+
+function mouseDownHandler(e){
+    if (title) startGame();
+    else {
+        command['fire'] = true;
+    }
+}
+
 
 // MAIN LOOP 
 function frame() {
@@ -1791,7 +1805,7 @@ function frame() {
         var msg;
         ctx.font = "18px Arial";
         ctx.textAlign = "center";
-        msg = ["CONTROLS:", "LEFT/RIGHT ARROW - move", "UP/DOWN ARROW - fast/slow", "SPACE - shoot", "P - pause", "M - debug"];
+        msg = ["CONTROLS:", "LEFT/RIGHT ARROW or A,D - move", "UP/DOWN ARROW or W,S- fast/slow", "SPACE or Mouse Click - shoot", "P - pause", "M - debug"];
         var y = canvas.height / 2 + unit * 1.3;
         for (var line of msg) {
             ctx.fillText(line, canvas.width / 2, y);
