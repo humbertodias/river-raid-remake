@@ -866,15 +866,19 @@ function treeSet(y) {
 var command = [];
 var fireDelay = 0;
 var controlMapping = { 37: 'left', 39: 'right', 38: 'up', 40: 'down', 32: 'fire' };
+var controlMappingWASD = { 65: 'left', 70: 'right', 87: 'up', 83: 'down'}  
+
 var lastKeyDown;
 function keyDownHandler(event) {
+    var code = event.which || event.keyCode;
+    console.log(code, event)
     //if (event.keyCode == 65) bridgeCount++;
-    if ([37, 39, 38, 40, 32].includes(event.keyCode)) event.preventDefault();
-    if (event.keyCode == lastKeyDown) return;
-    if (event.keyCode == 68) {
+    if ([37, 39, 38, 40, 32].includes(code)) event.preventDefault();
+    if (code == lastKeyDown) return;
+    if (code == 77) {
         debug = !debug;
     }
-    if (event.keyCode == 80 && !title && !gameover && !player.dyingTime && !gamewin) {
+    if (code == 80 && !title && !gameover && !player.dyingTime && !gamewin) {
         paused = !paused;
         if (paused) {
             showMessage("PAUSED", 1000000);
@@ -889,15 +893,22 @@ function keyDownHandler(event) {
     if (title) startGame();
     else if (gameover > .5) titleScreen();
     //else if (gamewin > 10) titleScreen();
-    else if (!paused) command[controlMapping[event.keyCode]] = true;
-    lastKeyDown = event.keyCode;
-    if (event.keyCode == 27) titleScreen();
+    else if (!paused) {
+        command[controlMapping[code]] = true;
+        command[controlMappingWASD[code]] = true;
+    }
+    lastKeyDown = code;
+    if (code == 27) titleScreen();
 
 
 }
 function keyUpHandler(event) {
-    if ([37, 39, 38, 40, 32].includes(event.keyCode)) event.preventDefault();
-    command[controlMapping[event.keyCode]] = false;
+    var code = event.which || event.keyCode;
+    if ([37, 39, 38, 40, 32].includes(code)) event.preventDefault();
+    
+    command[controlMapping[code]] = false;
+    command[controlMappingWASD[code]] = false;
+
     lastKeyDown = null;
 }
 
@@ -1780,7 +1791,7 @@ function frame() {
         var msg;
         ctx.font = "18px Arial";
         ctx.textAlign = "center";
-        msg = ["CONTROLS:", "LEFT/RIGHT ARROW - move", "UP/DOWN ARROW - fast/slow", "SPACE - shoot", "P - pause", "D - debug"];
+        msg = ["CONTROLS:", "LEFT/RIGHT ARROW - move", "UP/DOWN ARROW - fast/slow", "SPACE - shoot", "P - pause", "M - debug"];
         var y = canvas.height / 2 + unit * 1.3;
         for (var line of msg) {
             ctx.fillText(line, canvas.width / 2, y);
