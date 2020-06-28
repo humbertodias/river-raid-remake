@@ -24,45 +24,45 @@ var sndFileNames = {
 };
 
 
-var music = new Audio("snd/effci-01.mp3"); 
+var music = new Audio("snd/effci-01.mp3");
 music.volume = .8;
 
 // loop music
-music.addEventListener('ended', function() {
+music.addEventListener('ended', function () {
     console.log('music playing')
-	this.currentTime = 0;
+    this.currentTime = 0;
     this.play();
 }, false);
 
 
 var snd = {};
 
-for(var si in sndFileNames){
-	snd[si] = new Audio("snd/" + sndFileNames[si][0]);
-	if(sndFileNames[si][1]){
-		snd[si].volume = sndFileNames[si][1];
-	}
+for (var si in sndFileNames) {
+    snd[si] = new Audio("snd/" + sndFileNames[si][0]);
+    if (sndFileNames[si][1]) {
+        snd[si].volume = sndFileNames[si][1];
+    }
 }
 
 
-function playSound(soundName){
-	if(! snd[soundName] ){
-		return;
-	}
-	snd[soundName].currentTime = 0;
-	snd[soundName].play();
+function playSound(soundName) {
+    if (!snd[soundName]) {
+        return;
+    }
+    snd[soundName].currentTime = 0;
+    snd[soundName].play();
 }
 
-function keepPlayingSound(soundName){
+function keepPlayingSound(soundName) {
 
-	if(! snd[soundName] ){
-		return;
-	}
-	if(snd[soundName].currentTime >= snd[soundName].duration){
-		snd[soundName].currentTime = 0;
-	}
-	snd[soundName].play();
+    if (!snd[soundName]) {
+        return;
+    }
+    if (snd[soundName].currentTime >= snd[soundName].duration) {
+        snd[soundName].currentTime = 0;
+    }
+    snd[soundName].play();
 }
-	
+
 
 

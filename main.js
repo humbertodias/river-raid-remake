@@ -19,18 +19,18 @@ function mulVec(v, a) {
     return { x: v.x * a, y: v.y * a };
 }
 // easing
-function easeStart(t){
+function easeStart(t) {
     return t * t * t;
 }
 
-function easeEnd(t){
+function easeEnd(t) {
     t = t - 1;
     t = t * t * t + 1;
     return t;
 }
 
 // INIT
-window.onload = function () {                                                   
+window.onload = function () {
     canvas = document.getElementById("canvas");    //get reference to the canvas and drawing context
     ctx = canvas.getContext("2d");                                                   // terrain quantization and scalling
     unitCount = 8;                                          //  units per half canvas
@@ -41,7 +41,7 @@ window.onload = function () {
     player.h = unit * .6;
     player.img = img["player"];
     player.sscale = .53; // scale sprite in respect to bbox
-    player.strans = { x: 0, y: .2*unit };
+    player.strans = { x: 0, y: .2 * unit };
 
     timeLast = time = (new Date()).getTime() / 1000.0; // init timer vars
 
@@ -49,7 +49,7 @@ window.onload = function () {
     document.addEventListener('keydown', keyDownHandler);
     document.addEventListener('keyup', keyUpHandler);
 
-    setInterval(frame, 1/60.0);     // setup main loop
+    setInterval(frame, 1 / 60.0);     // setup main loop
     titleScreen(); // init game state
 
     window.audioContext = new AudioContext();
@@ -105,7 +105,7 @@ var islandInterval = { min: 2, max: 70 }; // { min: 35, max: 70 };
 var bridgeInterval = { min: 100, max: 170 };
 var spriteInterval = { firstBridge: 2, lastBridge: 1.3 };
 var sceneryInterval = { min: .2, max: .6 };
-var waterColor = ["#6C90Cd", "#7a8b5d", "#668d97", "#ab9271", "#aa5555"] 
+var waterColor = ["#6C90Cd", "#7a8b5d", "#668d97", "#ab9271", "#aa5555"]
 var landColors = [/*"#886644"*/ "#566D32", "#285838", "#cccccc", "#73543f", "#252525"];
 var bulletVel = 900.0;
 var fuelRate = { consumption: .03, intake: .7 };
@@ -168,7 +168,7 @@ var bank = []
 var island = []
 var nextIslandAt = islandInterval.min;
 // player
-var player = { x: 0, y: 0, w: 10, h: 10, velx: 300.0, roll:0, dyingTime:0 };
+var player = { x: 0, y: 0, w: 10, h: 10, velx: 300.0, roll: 0, dyingTime: 0 };
 var bullets = [];
 // bridge
 var bridge = null;
@@ -187,7 +187,7 @@ var ripples = [];
 var score;
 var scorePopups = [];
 // cam shake
-var shake = { time: 0, dur: 0, ampli: 25};
+var shake = { time: 0, dur: 0, ampli: 25 };
 // message
 var messageTime, mesageDur, message;
 var introMessageTime;
@@ -215,14 +215,14 @@ function addSection(bank, width, length) {
     var pointNew = { x: width, y: pointCurrent.y - length };
     var dy = Math.abs(pointNew.x - pointCurrent.x) * slope; // tan slope
     bank.push({ x: pointNew.x, y: pointCurrent.y - dy }); // slope to vertical section
-    if(length!=0) bank.push({ x: pointNew.x, y: pointNew.y - dy }); // vertical section
+    if (length != 0) bank.push({ x: pointNew.x, y: pointNew.y - dy }); // vertical section
 }
 
 // width of bank at given y coordinate
-function bankWidth(bank, y, fakeElevation ) {
+function bankWidth(bank, y, fakeElevation) {
     fakeElevation = typeof fakeElevation == 'undefined' ? 0 : fakeElevation;
     for (var i = 0; i < bank.length - 1; ++i) {
-        var a = Object.assign({},bank[i]);
+        var a = Object.assign({}, bank[i]);
         var b = Object.assign({}, bank[i + 1]);
 
         // handle fake elevation
@@ -242,7 +242,7 @@ function bankWidth(bank, y, fakeElevation ) {
                 }
             }
         }
-        if (y <= a.y && y >= b.y) 
+        if (y <= a.y && y >= b.y)
             if (a.x == b.x)
                 return a.x;
             else
@@ -257,7 +257,7 @@ function terrainBounds(y, fakeElevation) {
     var infinity = 100000;
     var wBank = bankWidth(bank, y, fakeElevation);
     var wIsland = bankWidth(island, y, fakeElevation);
-    var bounds = [-infinity, wBank, canvas.width - wBank, infinity ];
+    var bounds = [-infinity, wBank, canvas.width - wBank, infinity];
     if (wIsland) {
         bounds.splice(2, 0, canvas.width / 2 - wIsland);
         bounds.splice(3, 0, canvas.width / 2 + wIsland);
@@ -277,20 +277,20 @@ function pointTerrainType(x, y, fakeElevation) { // returns 0 if on water, 1 if 
 // check if box is fully on land or in water
 function boxHitTerrain(x, y, w, h, terrainType, fakeElevation) { // terrainType: 0=water, 1=land
     fakeElevation = typeof fakeElevation == 'undefined' ? 0 : fakeElevation;
-    var bounds = terrainBounds(y-h/2, fakeElevation);
-    for(var bx of bounds) {
-        if (bx > x - w / 2  && bx < x + w / 2 ) return true;      
+    var bounds = terrainBounds(y - h / 2, fakeElevation);
+    for (var bx of bounds) {
+        if (bx > x - w / 2 && bx < x + w / 2) return true;
     }
     var bounds = terrainBounds(y + h / 2);
     for (var bx of bounds) {
-        if (bx > x - w / 2 && bx < x + w / 2) return true;    
+        if (bx > x - w / 2 && bx < x + w / 2) return true;
     }
     for (var i = -w / 2; i <= w / 2; i += w) {
-        for (var j = -h/2; j <= h/2; j += h) {
-            if (pointTerrainType(x+i, y+j, fakeElevation) == terrainType) return true;
+        for (var j = -h / 2; j <= h / 2; j += h) {
+            if (pointTerrainType(x + i, y + j, fakeElevation) == terrainType) return true;
         }
     }
-  
+
     return false;
 }
 
@@ -302,7 +302,7 @@ function resolvePointTerrain(x, y, wantedTerrain, wantedSide, fakeElevation) { /
     var status = false;
     while (x > bounds[i++])
         status = (!status) ? 1 : 0;
-    return (status == wantedTerrain) ? 0 :  bounds[i-1 + (wantedSide - 1) / 2] -x;
+    return (status == wantedTerrain) ? 0 : bounds[i - 1 + (wantedSide - 1) / 2] - x;
 }
 
 // returns offset to move box horizontally to be fully on wanted terrain type (shortest distance)
@@ -319,11 +319,11 @@ function resolveBoxTerrain(x, y, w, h, wantedTerrain, fakeElevation) {
     else if (dleft == 0)
         return dright;
     else
-        return(Math.abs(dleft) > Math.abs(dright)) ? dright : dleft;
+        return (Math.abs(dleft) > Math.abs(dright)) ? dright : dleft;
 }
 
 // box/box collision
-function boxHit(center1x, center1y, width1, height1, center2x, center2y, width2, height2){
+function boxHit(center1x, center1y, width1, height1, center2x, center2y, width2, height2) {
     if (center1x + width1 / 2.0 < center2x - width2 / 2.0) return false;
     if (center1x - width1 / 2.0 > center2x + width2 / 2.0) return false;
     if (center1y + height1 / 2.0 < center2y - height2 / 2.0) return false;
@@ -365,12 +365,12 @@ function addScenery(name, ix, iy, resolve, flip, marginMin) {
 }
 
 function addSprite(name, x, y) {
-   
+
     type = spriteTypes[name];
 
     var s = {
         x: x, y: y,
-        name:name,
+        name: name,
         w: type.size[0] * unit, h: type.size[1] * unit,
         vel: randint(type.vel[0], type.vel[1]) * Math.sign((Math.random() - .5)),
         moveTime: (Math.random() < type.move[0]) ? Math.random() * type.move[1] : 100000,
@@ -383,7 +383,7 @@ function addSprite(name, x, y) {
     if (type.boxExtensionFront) s.boxExtensionFront = type.boxExtensionFront * unit;
 
     if (s.name == "jet") {
-        s.x = (s.vel > 0) ? -s.w/2 : canvas.width+s.w/2;
+        s.x = (s.vel > 0) ? -s.w / 2 : canvas.width + s.w / 2;
     }
     else if (s.name == "tank") {
 
@@ -394,7 +394,7 @@ function addSprite(name, x, y) {
         s.x += r + Math.sign(r) * unit * .2;
     }
 
-    if (s.name == "jet" || s.name =="tank" || !boxHitTerrain(s.x, s.y, s.w, s.h, 1, unit * .5)) { // one last check to eliminate misbehaving placement
+    if (s.name == "jet" || s.name == "tank" || !boxHitTerrain(s.x, s.y, s.w, s.h, 1, unit * .5)) { // one last check to eliminate misbehaving placement
         sprites.push(s);
     }
 
@@ -452,11 +452,11 @@ function startLife() {
     paused = false;
 
 
-    try{
+    try {
         let highScore = localStorage.getItem("highScore");
-        if(score > highScore)
-        localStorage.setItem("highScore", score);
-    }catch(e){
+        if (score > highScore)
+            localStorage.setItem("highScore", score);
+    } catch (e) {
     }
 
 }
@@ -467,13 +467,13 @@ function titleScreen() {
     introMessageTime = 0;
     title = true;
     startLife();
-    titleScroll = canvas.width ;
+    titleScroll = canvas.width;
 }
 
 function playerDie() {
     if (player.invulnerable) return;
     if (player.dead && title) return;
-    player.lives--; 
+    player.lives--;
     player.dyingTime = 1.3;
     explosions.push({ x: player.x, y: player.y, w: player.w + 1 * unit, h: player.h + 1 * unit, dur: 1 });
     player.dead = true
@@ -487,7 +487,7 @@ function playerDie() {
 }
 
 function destroyBridge() {
-    var ex = { x: canvas.width / 2, y: bridge.y, w: bridge.w + 2 * unit, h: bridge.h + unit, dur: 2, spread:2 }
+    var ex = { x: canvas.width / 2, y: bridge.y, w: bridge.w + 2 * unit, h: bridge.h + unit, dur: 2, spread: 2 }
     explosions.push(ex);
     bridge.explosion = ex;
     bridge.destroyed = true;
@@ -495,7 +495,7 @@ function destroyBridge() {
     score += bridge.score;
     for (var s of sprites) {
         if (s.name == "tank") {
-             s.moveTime = 100000;
+            s.moveTime = 100000;
             if (boxHit(bridge.x, bridge.y, bridge.w, bridge.h, s.x, s.y, s.w, s.h)) {
                 destroySprite(s);
             }
@@ -505,11 +505,11 @@ function destroyBridge() {
         }
     }
     for (var s of scenery) {
-        if ( (Math.random() < .7 && !s.indestructible) || s.bridgePart)
+        if ((Math.random() < .7 && !s.indestructible) || s.bridgePart)
             s.selfDestructTime = Math.random() * 1.5;
     }
 
-    scorePopups.push({ x: bridge.x, y: bridge.y, score: bridge.score, dur: (bridge.major? 2.2: 1.5), size: (bridge.major? 60: 48) });
+    scorePopups.push({ x: bridge.x, y: bridge.y, score: bridge.score, dur: (bridge.major ? 2.2 : 1.5), size: (bridge.major ? 60 : 48) });
     //playSound("ex6");
     playSound("ex9");
 }
@@ -524,7 +524,7 @@ function destroySprite(s) {
         explosionDur = 1;
         explosionSpread = 1.5;
     }
-    e = { x: s.x, y: s.y, w: s.w + explosionSizeExtra, h: s.h + explosionSizeExtra, dur: explosionDur, spread:explosionSpread };
+    e = { x: s.x, y: s.y, w: s.w + explosionSizeExtra, h: s.h + explosionSizeExtra, dur: explosionDur, spread: explosionSpread };
     explosions.push(e);
     score += s.score;
     // if hit fuel, explode stuff in vicinity
@@ -552,7 +552,7 @@ function destroySprite(s) {
     var popupSize = 32;
     if (s.name == "tank") popupSize = 48;
     scorePopups.push({ x: s.x, y: s.y, score: s.score, dur: 1, size: popupSize });
-    
+
 
 }
 
@@ -567,8 +567,8 @@ function destroyScenery(s) {
     explosions.push(e);
     // add score popup
     scorePopups.push({ x: s.x, y: s.y, score: s.score, dur: 1, size: 32 });
-   // playSound("ex7");
-    if (s.name.substr(0,4) == "tree") {
+    // playSound("ex7");
+    if (s.name.substr(0, 4) == "tree") {
         //playSound("melt");
         playSound("ex8");
     }
@@ -595,14 +595,14 @@ function drawBank(bank, sideOffset = 0) {
             restoreFirstPoint = bank[0];
             var offset = unit * .5;
             //if (bank[1].x < unit * 2) offset = unit * .01;
-            bank.splice(0, 1, { x: restoreFirstPoint.x, y: restoreFirstPoint.y - offset *slope })
+            bank.splice(0, 1, { x: restoreFirstPoint.x, y: restoreFirstPoint.y - offset * slope })
             bank.splice(1, 0, { x: restoreFirstPoint.x + offset, y: restoreFirstPoint.y - offset * slope })
         }
         restoreLastPoint = null;
         if (bank[bank.length - 1].x == 0) {
             // handle end of island
             restoreLastPoint = bank.pop();
-            var offset = unit*.5;
+            var offset = unit * .5;
             //offset = (bank[bank.length - 2].x < unit * 2) offset = unit * .01;
             bank.push({ x: restoreLastPoint.x + offset, y: restoreLastPoint.y + offset * slope });
             bank.push({ x: restoreLastPoint.x, y: restoreLastPoint.y + offset * slope });
@@ -612,9 +612,9 @@ function drawBank(bank, sideOffset = 0) {
 
         if (bank.length > 2) {
             for (i = 0; i < bank.length - 2; ++i) {
-                var a =  bank[i];
+                var a = bank[i];
                 var b = bank[i + 1];
-                var c =  bank[i + 2];
+                var c = bank[i + 2];
                 // fake elevation
                 //if ((a.x == b.x && c.x > b.x) || (a.x < b.x && b.x == c.x)) { a.y -= fakeElevation; b.y -= fakeElevation; c.y -= fakeElevation; }
                 var ab = subVec(b, a);
@@ -623,7 +623,7 @@ function drawBank(bank, sideOffset = 0) {
                 var cbAbs = absVec(cb);
                 var n1 = normalizeVec(ab);
                 var n2 = normalizeVec(cb);
-                var offset = Math.min(abAbs/2, cbAbs/2, unit * .5);
+                var offset = Math.min(abAbs / 2, cbAbs / 2, unit * .5);
                 var p1 = addVec(a, mulVec(n1, abAbs - offset));
                 var p2 = addVec(c, mulVec(n2, cbAbs - offset));
 
@@ -634,8 +634,8 @@ function drawBank(bank, sideOffset = 0) {
             }
             // ctx.lineTo(bank[i].x, bank[i].y);
         }
-        ctx.lineTo(bank[bank.length - 1].x, bank[bank.length-1].y);
-        ctx.lineTo(-sideOffset, Math.max(bank[bank.length-1].y, -scroll - sideOffset));
+        ctx.lineTo(bank[bank.length - 1].x, bank[bank.length - 1].y);
+        ctx.lineTo(-sideOffset, Math.max(bank[bank.length - 1].y, -scroll - sideOffset));
 
         ctx.closePath();
         ctx.fill();
@@ -694,7 +694,7 @@ function drawAo(bank) {
         }
     }
 
-    for (var i = 1; i < bank.length-1; ++i) {
+    for (var i = 1; i < bank.length - 1; ++i) {
         var a = bank[i - 1];
         var b = bank[i];
         var c = bank[i + 1]
@@ -704,7 +704,7 @@ function drawAo(bank) {
         if (b.x == a.x) {
             // from vertical to right
             if (c.x > b.x) {
-                if (c.x - b.x > unit+.1) {  // regular from vertical to right right is more than one unit wide
+                if (c.x - b.x > unit + .1) {  // regular from vertical to right right is more than one unit wide
                     image = img["ao_sea_tile_slope_inner"]
                     imageRatio = image.height / image.width;
                     ymin = b.y - unit * .4 - 62;
@@ -758,7 +758,7 @@ function drawAo(bank) {
                     ymax = ymin + unit * 3;
                     ctx.drawImage(image, b.x - unit, ymin, unit * 3 / imageRatio, ymax - ymin);
                 }
-                else if(i==1 && bank[0].x !=0) {
+                else if (i == 1 && bank[0].x != 0) {
                     ymin = ymax = b.y;
                 }
             }
@@ -771,13 +771,13 @@ function drawAo(bank) {
         }
         ybounds.push([ymin, ymax]);
     }
-    if(bank.length) ybounds.push( [bank[bank.length - 1].y, bank[bank.length - 1].y] );
-    
+    if (bank.length) ybounds.push([bank[bank.length - 1].y, bank[bank.length - 1].y]);
+
     // fill gaps between a and b
-    for (var i = 1; i < ybounds.length ; ++i) {
+    for (var i = 1; i < ybounds.length; ++i) {
         var a = bank[i - 1];
         var b = bank[i];
-        if (Math.abs(a.x - b.x)<.1) { // vertical
+        if (Math.abs(a.x - b.x) < .1) { // vertical
             var ymin = ybounds[i][1];
             var ymax = ybounds[i - 1][0] - ybounds[i][1];
             if (ymin < ymax) {
@@ -790,12 +790,12 @@ function drawAo(bank) {
             image = img["ao_sea_tile_slope"];
             imgRatio = image.height / image.width;
             for (var t = 1; t < tileCount - 1; t++) {
-                 ctx.drawImage(image, a.x + unit * t, a.y - unit * t * slope - unit * 1.375, unit, unit*imgRatio);
+                ctx.drawImage(image, a.x + unit * t, a.y - unit * t * slope - unit * 1.375, unit, unit * imgRatio);
             }
         }
     }
 
-    if(debug){
+    if (debug) {
         // debug print points and draw contur;
         if (bank.length) {
             for (var i = 0; i < bank.length; ++i) {
@@ -806,11 +806,11 @@ function drawAo(bank) {
                 ctx.fillText("index " + i + "/" + (bank.length - 1), pp.x + 10, pp.y);
                 ctx.fillStyle = cs;
             }
-        
+
             ctx.strokeStyle = "#000000";
             ctx.beginPath();
             ctx.moveTo(bank[0].x, bank[0].y)
-            for (var i = 1; i < bank.length ; ++i) {
+            for (var i = 1; i < bank.length; ++i) {
                 var cs = ctx.fillStyle;
                 ctx.fillStyle = "#000000";
                 var pp = bank[i];
@@ -822,7 +822,7 @@ function drawAo(bank) {
 }
 
 
-function drawAoAll(){
+function drawAoAll() {
     drawAo(bank);
     ctx.transform(-1, 0, 0, 1, canvas.width, 0);
     drawAo(bank);
@@ -836,7 +836,7 @@ function drawAoAll(){
 function showMessage(msg, dur) {
     if (message == msg) {
         messageDur = dur;
-        messageTime = dur/2;
+        messageTime = dur / 2;
     }
     else {
         messageTime = 0;
@@ -850,7 +850,7 @@ function skin(y) {
     if (bridge) {
         if (y > bridge.y) s--;
     }
-    return Math.floor((s %25) / 5);
+    return Math.floor((s % 25) / 5);
 }
 
 function treeSet(y) {
@@ -859,7 +859,7 @@ function treeSet(y) {
     else if (tskin == 2) return ["tree2", "tree4", "tree5"];
     else if (tskin == 3) return ["tree9", "tree10", "tree11"];
     else if (tskin == 4) return ["tree12", "tree13", "tree14"];
-    else return["tree1", "tree2", "tree3"];
+    else return ["tree1", "tree2", "tree3"];
 }
 
 // KEYBOARD EVENT HANDLERS
@@ -869,9 +869,9 @@ var controlMapping = { 37: 'left', 39: 'right', 38: 'up', 40: 'down', 32: 'fire'
 var lastKeyDown;
 function keyDownHandler(event) {
     //if (event.keyCode == 65) bridgeCount++;
-    if([37,39,38,40,32].includes(event.keyCode)) event.preventDefault();
+    if ([37, 39, 38, 40, 32].includes(event.keyCode)) event.preventDefault();
     if (event.keyCode == lastKeyDown) return;
-    if (event.keyCode == 68){
+    if (event.keyCode == 68) {
         debug = !debug;
     }
     if (event.keyCode == 80 && !title && !gameover && !player.dyingTime && !gamewin) {
@@ -881,7 +881,7 @@ function keyDownHandler(event) {
             music.pause()
         }
         else {
-            showMessage("PAUSED",1);
+            showMessage("PAUSED", 1);
             music.play()
         }
 
@@ -889,10 +889,10 @@ function keyDownHandler(event) {
     if (title) startGame();
     else if (gameover > .5) titleScreen();
     //else if (gamewin > 10) titleScreen();
-    else if(!paused) command[controlMapping[event.keyCode]] = true;
+    else if (!paused) command[controlMapping[event.keyCode]] = true;
     lastKeyDown = event.keyCode;
     if (event.keyCode == 27) titleScreen();
-   
+
 
 }
 function keyUpHandler(event) {
@@ -944,7 +944,7 @@ function frame() {
 
     }
 
-    if (introMessageTime && ! title) {
+    if (introMessageTime && !title) {
         introMessageTime += dt;
         if (introMessageTime > 2) {
             showMessage("MISSION: DEMOLISH " + finalBridge + " BRIDGES", 5);
@@ -979,7 +979,7 @@ function frame() {
     if (!title) {
         if (!player.dead) {
             if (gamewin > 1.5) scroll += dt * scrollSpeed.max * 1.3;
-            else  scroll += dt * scrollSpeed.current;
+            else scroll += dt * scrollSpeed.current;
         }
     }
     else {
@@ -1038,7 +1038,7 @@ function frame() {
             var halfw = randint(1, 2);
             var bridgeh = unit * 1.6;
             if (bridgeCount > 1) bridgeh = [unit * 1.6, unit * 1.6, unit * 1.6, unit * 2.5].choose();
-            if(majorBridge) bridgeh = unit * 2.5; //  major bridge is always large
+            if (majorBridge) bridgeh = unit * 2.5; //  major bridge is always large
             addSection(bank, (unitCount - halfw) * unit, bridgeh + randint(4, 8) * unit);
             bridge = {
                 x: canvas.width / 2, y: (bank[bank.length - 1].y + bank[bank.length - 2].y) / 2,
@@ -1314,7 +1314,7 @@ function frame() {
             }
             if (b.y < -scroll) keepBullet = false // bullet went out of screen
             if (boxHitTerrain(b.x, b.y - b.h / 2.0, b.w, b.h, 1, unit * .5)) {
-                explosions.push({ x: b.x, y: b.y, w:unit*.6, h: unit*.6, dur: 1, spread: 7, color:[landColors[skin(b.y)]] });
+                explosions.push({ x: b.x, y: b.y, w: unit * .6, h: unit * .6, dur: 1, spread: 7, color: [landColors[skin(b.y)]] });
                 keepBullet = false; // bullet hit land
                 playSound("hit");
             }
@@ -1388,12 +1388,12 @@ function frame() {
         var wcolor2 = waterColor[skin(bridge.y + 10)];
         wcolor1 = (shake.time / shake.dur) > .05 ? "#ee4444" : wcolor1;
         wcolor2 = (shake.time / shake.dur) > .05 ? "#ee4444" : wcolor2;
-        ctx.fillStyle =  wcolor1;
-        ctx.fillRect(0, -scroll, canvas.width, bridge.y -(- scroll));
+        ctx.fillStyle = wcolor1;
+        ctx.fillRect(0, -scroll, canvas.width, bridge.y - (- scroll));
         ctx.fillStyle = wcolor2;
         ctx.fillRect(0, bridge.y, canvas.width, -scroll + canvas.height - bridge.y);
 
- 
+
         // water under bridge
         if (bridge) {
             if (shake.time <= 0) {
@@ -1406,7 +1406,7 @@ function frame() {
                 ctx.fillRect(bridge.leftBank, ymin, bridge.w, ymax - ymin);
             }
         }
-   
+
     }
 
     // draw ripples
@@ -1425,7 +1425,7 @@ function frame() {
     ctx.globalAlpha = 1;
 
     // draw land
-    ctx.fillStyle = bridge ? landColors[skin(bridge.y+10)]: landColors[skin(-scroll)]// bridge ? landColors[bridgeCount % landColors.length] : landColors[(bridgeCount+1)%landColors.length];
+    ctx.fillStyle = bridge ? landColors[skin(bridge.y + 10)] : landColors[skin(-scroll)]// bridge ? landColors[bridgeCount % landColors.length] : landColors[(bridgeCount+1)%landColors.length];
     drawLand();
     if (bridge) {
         ctx.save();
@@ -1440,7 +1440,7 @@ function frame() {
     // draw bridge
     if (bridge) {
         ctx.fillStyle = bridgeCount < 20 ? "#333333" : "#111111"; //"#444444"; // top
-        ctx.fillRect(-shake.ampli, bridge.y - bridge.h / 2.0, canvas.width+shake.ampli*2, bridge.h);
+        ctx.fillRect(-shake.ampli, bridge.y - bridge.h / 2.0, canvas.width + shake.ampli * 2, bridge.h);
         ctx.fillStyle = "#cc9922";
         var laneCount = Math.floor(bridge.h / (unit * .8));
         var laneh = bridge.h / laneCount;
@@ -1448,17 +1448,17 @@ function frame() {
         for (var lan = 1; lan < laneCount; ++lan) {
             var x = 0;
             while (x < canvas.width + shake.ampli) {
-                ctx.fillRect(x,  lan*laneh + bridge.y - bridge.h/2 - h / 2, w, h);
+                ctx.fillRect(x, lan * laneh + bridge.y - bridge.h / 2 - h / 2, w, h);
                 x += w * 2;
             }
         }
-        ctx.fillStyle = ctx.fillStyle = bridgeCount < 20 ? "#222222":"#000000";//"#333333"; //side
-        ctx.fillRect(canvas.width / 2.0 - bridge.w / 2.0, bridge.y + bridge.h / 2.0, bridge.w, unit*.2);
+        ctx.fillStyle = ctx.fillStyle = bridgeCount < 20 ? "#222222" : "#000000";//"#333333"; //side
+        ctx.fillRect(canvas.width / 2.0 - bridge.w / 2.0, bridge.y + bridge.h / 2.0, bridge.w, unit * .2);
 
         if (bridge.destroyed) {
             // water under bridge
-            var ymin = bridge.y - bridge.h / 2.0 - 1 - unit *1 ;
-            var ymax = ymin + bridge.h + unit * .2 + 2 + unit *1;
+            var ymin = bridge.y - bridge.h / 2.0 - 1 - unit * 1;
+            var ymax = ymin + bridge.h + unit * .2 + 2 + unit * 1;
             var grad = ctx.createLinearGradient(0, ymin, 0, ymax);
             var wcolor1 = (shake.time / shake.dur) > .05 ? "#ee4444" : waterColor[skin(bridge.y - 10)];
             var wcolor2 = (shake.time / shake.dur) > .05 ? "#ee4444" : waterColor[skin(bridge.y + 10)];
@@ -1476,15 +1476,15 @@ function frame() {
             for (var i = 0; i < steps; ++i) {
                 var w = (random() * unit * 3 + unit * .3) * Math.min(1, 10 * (1 - bridge.explosion.time / bridge.explosion.dur));
                 ctx.fillRect(bridge.leftBank - w, bridge.y - bridge.h / 2 + h * i, w + random() * unit * .4, h + 1);
-                w = (random() * unit * 3 + unit*.3) * Math.min(1, 10 * (1 - bridge.explosion.time / bridge.explosion.dur));
+                w = (random() * unit * 3 + unit * .3) * Math.min(1, 10 * (1 - bridge.explosion.time / bridge.explosion.dur));
                 ctx.fillRect(bridge.rightBank - random() * unit * .4, bridge.y - bridge.h / 2 + h * i, w, h + 1);
             }
-        }      
+        }
 
         // bridge decoration
         ctx.save();
         for (var i = 0; i < 2; ++i) {
-            ctx.fillStyle = landColors[skin(bridge.y+10)];//landColors[bridgeCount % landColors.length];
+            ctx.fillStyle = landColors[skin(bridge.y + 10)];//landColors[bridgeCount % landColors.length];
             ctx.fillRect(-shake.ampli, bridge.y + bridge.h / 2 - unit * .1, canvas.width / 2 - bridge.w / 2 + shake.ampli, unit * .1 + 2);
             ctx.fillStyle = "#001122";
             ctx.globalAlpha = .3;
@@ -1496,7 +1496,7 @@ function frame() {
     }
 
     // draw ao
- 
+
     // clip out ao from bridge
     var ymin, ymax;
     if (bridge) if (!bridge.destroyed) {
@@ -1505,9 +1505,9 @@ function frame() {
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(0, -scroll);
-        ctx.lineTo(canvas.width, -scroll );
-        ctx.lineTo(canvas.width, -scroll +canvas.height);
-        ctx.lineTo(0, -scroll +canvas.height)
+        ctx.lineTo(canvas.width, -scroll);
+        ctx.lineTo(canvas.width, -scroll + canvas.height);
+        ctx.lineTo(0, -scroll + canvas.height)
         ctx.closePath();
         ctx.moveTo(bridge.leftBank, ymin);
         ctx.lineTo(bridge.leftBank, ymax);
@@ -1526,7 +1526,7 @@ function frame() {
     // draw bridge shadow
     if (bridge) if (!bridge.destroyed) {
         ctx.globalAlpha = .8;
-        ctx.drawImage(img["bridge_shadow"], bridge.leftBank, ymax -2, bridge.w, unit*2);
+        ctx.drawImage(img["bridge_shadow"], bridge.leftBank, ymax - 2, bridge.w, unit * 2);
         //ctx.fillRect( canvas.width / 2 - bridge.w / 2, bridge.y + bridge.h / 2, bridge.w, unit );
     }
     ctx.globalAlpha = 1;
@@ -1621,18 +1621,18 @@ function frame() {
         seed(e.seed);
         var ratio = e.h / e.w;
         var pixsize = Math.ceil(unit * .12);
-        for (var v = -e.h/ 2 -pixsize/2 ; v < e.h / 2 + pixsize/2; v+= pixsize) {
-            for (var u = -e.w/2 - pixsize/2  ; u < e.w / 2+ pixsize/2; u += pixsize) {
+        for (var v = -e.h / 2 - pixsize / 2; v < e.h / 2 + pixsize / 2; v += pixsize) {
+            for (var u = -e.w / 2 - pixsize / 2; u < e.w / 2 + pixsize / 2; u += pixsize) {
                 ctx.fillStyle = color[Math.floor(random() * (0, color.length))];
-                
+
                 //var rad = 10;//= Math.sqrt(( (v-e.h/pixsize/2)  * ratio) * ((v-e.h/pixsize/2) * ratio) + (u-e.w/pixsize/2) * (u-e.w/pixsize/2))/ Math.max(e.w,e.h); 
                 var rad = Math.sqrt(u * u * (ratio * ratio) + v * v) / (e.h * .5);
-                var jitter = -ageNorm/3 + random() * ageNorm/1.5;
+                var jitter = -ageNorm / 3 + random() * ageNorm / 1.5;
                 ctx.fillStyle = color[Math.floor(Math.max(Math.min(jitter + rad * (1.2 - ageNorm), 1), 0) * (color.length - 1))];
-                var deltax = u * ratio * spread * (1-ageNorm) * random();
+                var deltax = u * ratio * spread * (1 - ageNorm) * random();
                 var deltay = v * spread * (1 - ageNorm) * random();
-                if (random() < .9 * ageNorm /rad  && rad <= 1.1)
-                    ctx.fillRect(e.x + u + deltax, e.y + v + deltay,  pixsize + 1, pixsize+1);
+                if (random() < .9 * ageNorm / rad && rad <= 1.1)
+                    ctx.fillRect(e.x + u + deltax, e.y + v + deltay, pixsize + 1, pixsize + 1);
             }
         }
         e.time -= dt;
@@ -1645,8 +1645,8 @@ function frame() {
     // draw player
 
     if (!player.dead && !title) {
-        iindex = Math.floor((.5 + player.roll * .5) * 6) +1;
-        var image = img["player" + iindex]; 
+        iindex = Math.floor((.5 + player.roll * .5) * 6) + 1;
+        var image = img["player" + iindex];
         ctx.drawImage(
             image,
             player.x - player.sscale * image.width / 2 + player.strans.x,
@@ -1658,9 +1658,9 @@ function frame() {
         ctx.drawImage(img["player_trail"], player.x - w / 2, player.y + unit * .4, w, unit * .5);
         ctx.globalAlpha = 1;
 
-        
+
         // DEBUG
-        if(debug){
+        if (debug) {
             var r = 0;
             var testFakeElev = unit;
             ctx.fillStyle = "#0000ff";
@@ -1673,9 +1673,9 @@ function frame() {
             r = resolveBoxTerrain(player.x, player.y, player.w, player.h, 0, testFakeElev);
             r += unit * .3 * Math.sign(r);
             ctx.strokeStyle = "#ff00ff";
-            ctx.strokeRect(player.x - player.w/2 + r, player.y - player.h/2, player.w, player.h);
+            ctx.strokeRect(player.x - player.w / 2 + r, player.y - player.h / 2, player.w, player.h);
         }
-       
+
     }
 
     // draw bullets
@@ -1691,14 +1691,15 @@ function frame() {
         s = scorePopups[i];
         if (!s.time) s.time = 0;
         s.time += dt;
-        if (s.time > s.dur) {    ctx.font = "32px Arial";
+        if (s.time > s.dur) {
+            ctx.font = "32px Arial";
             scorePopups.splice(i, 1);
             --i;
             continue;
         }
         ctx.font = "" + s.size + "px Arial";
         var yoffset = easeEnd(s.time / s.dur) * unit * 1;
-        ctx.globalAlpha = 1 - Math.max(0,(s.time-s.dur*.8 )/ (s.dur *.2));
+        ctx.globalAlpha = 1 - Math.max(0, (s.time - s.dur * .8) / (s.dur * .2));
         ctx.fillText(s.score, s.x, s.y - yoffset);
     }
     ctx.globalAlpha = 1;
@@ -1707,7 +1708,7 @@ function frame() {
         ctx.restore();
     }
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0); 
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
 
     if (!title) {
         // draw hud bar
@@ -1719,11 +1720,11 @@ function frame() {
         ctx.textAlign = "right"
         ctx.fillStyle = "#ffff00";
         ctx.font = "40px Arial";
-        ctx.fillText(("000000" + score).substr(-6, 6), canvas.width / 2 -10, canvas.height - 16);
+        ctx.fillText(("000000" + score).substr(-6, 6), canvas.width / 2 - 10, canvas.height - 16);
         // print bridge count
         var destroyedCount = bridgeCount;
         if (bridge) {
-            destroyedCount = bridge.destroyed ? bridgeCount : Math.max(0,bridgeCount-1);
+            destroyedCount = bridge.destroyed ? bridgeCount : Math.max(0, bridgeCount - 1);
         }
         ctx.fillText(destroyedCount, canvas.width - 12, canvas.height - 16);
 
@@ -1739,10 +1740,10 @@ function frame() {
             var image = img["fuel_gauge"];
             var ratio = image.width / image.height;
             var w = 200;
-            ctx.drawImage(image, canvas.width / 2 +10, canvas.height - 50, w, w / ratio);
+            ctx.drawImage(image, canvas.width / 2 + 10, canvas.height - 50, w, w / ratio);
             var scale = w / image.width;
             image = img["fuel_gauge_tip"];
-            ctx.drawImage(image, canvas.width / 2 + 10 +9 +player.fuel * 171, canvas.height - 35, image.width*scale, image.height*scale);
+            ctx.drawImage(image, canvas.width / 2 + 10 + 9 + player.fuel * 171, canvas.height - 35, image.width * scale, image.height * scale);
         }
 
         // message
@@ -1773,14 +1774,14 @@ function frame() {
         var w = 700;
         image = img["logo"];
         var ratio = image.width / image.height;
-        ctx.drawImage(image, canvas.width / 2 - w / 2, unit * 2, w, w/ratio);
+        ctx.drawImage(image, canvas.width / 2 - w / 2, unit * 2, w, w / ratio);
 
         ctx.fillStyle = "#ffff33";
         var msg;
         ctx.font = "18px Arial";
         ctx.textAlign = "center";
         msg = ["CONTROLS:", "LEFT/RIGHT ARROW - move", "UP/DOWN ARROW - fast/slow", "SPACE - shoot", "P - pause", "D - debug"];
-        var y = canvas.height / 2 + unit*1.3;
+        var y = canvas.height / 2 + unit * 1.3;
         for (var line of msg) {
             ctx.fillText(line, canvas.width / 2, y);
             y += 24;
@@ -1797,33 +1798,31 @@ function frame() {
         ctx.fillText(msg, titleScroll, canvas.height - 20);
         titleScroll -= dt * 250;
         if (titleScroll < -1500 /*-ctx.measureText(msg).width*/) titleScroll = canvas.width;
-       
+
 
         // IMPLEMENT HIGH SCORE:
-        
+
         // try{
         //     localStorage.setItem("highScore", 10);
         // }
         // catch (e) {
 
         // }
-        
+
         var high = null;
-        try{
+        try {
             var high = localStorage.getItem('highScore');
         }
-        catch(e){
+        catch (e) {
 
         }
         if (!high) {
             high = "[enable cookies]";
         }
         ctx.textAlign = "center";
-        ctx.fillText("High" , canvas.width / 2, 25);
-        ctx.fillText(high , canvas.width / 2, 60);
+        ctx.fillText("High", canvas.width / 2, 25);
+        ctx.fillText(high, canvas.width / 2, 60);
     }
 
 
 }
-
-
